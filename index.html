@@ -124,7 +124,8 @@
 
     $("#assinar").click(function(){
       console.log("Assinou...");
-
+    $("#assinar").addClass("disabled").html("<span id='span-assinar'></span> Assinando...");
+    $("#span-assinar").addClass("glyphicon").addClass("glyphicon-transfer").removeClass("glyphicon-credit-card");
 
       var build_customer = function() {
         var customer_params = {
@@ -186,16 +187,15 @@
               $(".alert").fadeIn();
               console.log(erro);
 
+              $("#assinar").removeClass("disabled").html("<span id='span-assinar'></span> Tentar novamente");
+              $("#span-assinar").addClass("glyphicon").addClass("glyphicon-credit-card").removeClass("glyphicon-transfer");
+
             }
           } else {
             $("#to-show").removeClass("alert-danger").addClass("alert-success").fadeIn();
-
             $("#infoAdd").append("<b>Assinatura criada com sucesso</b>, código de assinatura:");
-
             $("#infoAdd").append("<h1><strong> " + response.code + "</strong></h1>")
-
             $("#infoAdd").append('<img src="./lib/check-pagamento-aprovado.png" height="150" width="150" style="position: absolute; margin-left: 35%; margin-top: -7%;">')
-
             $("#erros").append("<li><strong>Próxima Cobrança:</strong> " + response.next_invoice_date.day + "/" + response.next_invoice_date.month + "/" + response.next_invoice_date.year + "</li>");
             $("#erros").append("<li><strong>Status do pagamento:</strong> " + response.invoice.status.description + "</li>");
             $("#erros").append("<li><strong>Status: </strong> " + response.status + "</li>")
@@ -439,7 +439,7 @@
 
                 </div>
 
-                <a href="#" class="btn btn-info btn-lg btn-block" role="button" id="assinar"><span class="glyphicon glyphicon-credit-card"></span> Assinar </a>
+                <a href="#" class="btn btn-info btn-lg btn-block" role="button" id="assinar"><span class="glyphicon glyphicon-credit-card" id="span-assinar"></span> Assinar</a>
 
               </div>
 
