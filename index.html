@@ -1,0 +1,457 @@
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="robots" content="noindex">
+
+<title>Checkout CartolaFC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="./lib/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<style type="text/css">
+  .header,
+  .marketing,
+  .footer {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .header h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 40px;
+  }
+
+  body{
+    padding:10px;
+  }
+
+  .show-on-hover:hover > ul.dropdown-menu {
+    display: block;    
+  }
+
+  /* Customize container */
+  @media (min-width: 768px) {
+    .container {
+      max-width: 730px;
+      background:#ffffff;
+    }
+  }
+  .container-narrow > hr {
+    margin: 30px 0;
+    background:#ffffff;
+  }
+
+  .main {
+    background:#f1f1f1;
+  }
+
+  /* Supporting marketing content */
+  .marketing {
+    margin: 20px 0;
+  }
+  .marketing p + h4 {
+    margin-top: 28px;
+  }
+
+  /* Responsive: Portrait tablets and up */
+  @media screen and (min-width: 768px) {
+    /* Remove the padding we set earlier */
+    .header,
+    .marketing,
+    .footer {
+      padding-right: 0;
+      padding-left: 0;
+    }
+    /* Space out the masthead */
+    .header {
+      margin-bottom: 30px;
+    }
+    /* Remove the bottom border on the jumbotron for visual effect */
+    .jumbotron {
+      border-bottom: 0;
+    }
+  }
+
+  body {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .panel-title {display: inline;font-weight: bold;}
+  .checkbox.pull-right { margin: 0; }
+  .pl-ziro { padding-left: 0px; }
+
+  .panel {
+    border: 0px solid transparent;
+    background: #f1f1f1;
+  }
+
+  .panel-default>.panel-heading .badge {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .container {
+    background: #ffffff;
+    border-radius:10px;
+    margin-top:20px;
+    margin-bottom:20px;
+  }
+
+  .panel-heading {
+    border-bottom: 0px solid #555555 !important;
+  }
+
+  .panel-default>.panel-heading {
+    color: #ffffff;
+    background-color: #333333;
+  }
+
+  .panel-default>.panel-heading {
+    color: #ffffff;
+    background-color: #333333;
+    padding-bottom: 15px;
+  }
+</style>
+
+<script src="./lib/jquery-1.10.2.min.js"></script>
+<script src="./lib/bootstrap.min.js"></script>    
+
+<script type="text/javascript" src="https://s3.amazonaws.com/assets-sandbox.moip.com.br/assinaturas/moip-assinaturas.min.js"></script>
+
+
+
+<script type="text/javascript">
+  $(document).ready(function(){
+
+    $("#assinar").click(function(){
+      console.log("Assinou...");
+
+
+      var build_customer = function() {
+        var customer_params = {
+          fullname: $("#fullname").val(),
+          email: $("#email").val(),
+          code: new Date().getTime(),
+          cpf : $("#cpf").val(),
+          birthdate_day : $("#birthdate_day").val(),
+          birthdate_month: $("#birthdate_month").val(),
+          birthdate_year: $("#birthdate_year").val(),
+          phone_area_code: $("#ddd").val(),
+          phone_number: $("#phone").val(),
+          billing_info: build_billing_info(),
+          address: build_address()
+        }
+        return new Customer(customer_params);
+      };
+
+      var build_billing_info = function() {
+        var billing_info_params = {
+          fullname : $("#fullname").val(), 
+          expiration_month: $("#expiration_month").val(),
+          expiration_year: $("#expiration_year").val(),
+          credit_card_number: $("#credit_card").val()
+        };
+        return new BillingInfo(billing_info_params);
+      };
+
+      var build_address = function() {
+        var address_params = {
+          street: $("#rua").val(),
+          number: $("#numero").val(),
+          complement: $("#complemento").val(),
+          district: $("#bairro").val(),
+          zipcode: $("#cep").val(),
+          city: $("#cidade").val(),
+          state: $("#estado").val(),
+          country: "BRA"
+        };
+        return new Address(address_params);
+      };         
+
+      var moip = new MoipAssinaturas("PE8ZECRX4ZPV3OF7HRG136HEPDOOTNUB");
+      var customer = build_customer();
+      var plan_code = "plan001";
+
+      moip.subscribe(
+        new Subscription()
+        .with_code(new Date().getTime())
+        .with_new_customer(customer)
+        .with_plan_code(plan_code)
+        ).callback(function(response){
+          if (response.has_errors()) {
+
+            $("#erros").empty();
+            for (i = 0; i < response.errors.length; i++) {
+              var erro = response.errors[i].description;
+              $("#erros").append("<li>" + erro + "</li>");
+              $(".alert").fadeIn();
+              console.log(erro);
+
+            }
+          } else {
+            $("#to-show").removeClass("alert-danger").addClass("alert-success").fadeIn();
+
+            $("#infoAdd").append("<b>Assinatura criada com sucesso</b>, código de assinatura:");
+
+            $("#infoAdd").append("<h1><strong> " + response.code + "</strong></h1>")
+
+            $("#infoAdd").append('<img src="./lib/check-pagamento-aprovado.png" height="150" width="150" style="position: absolute; margin-left: 35%; margin-top: -7%;">')
+
+            $("#erros").append("<li><strong>Próxima Cobrança:</strong> " + response.next_invoice_date.day + "/" + response.next_invoice_date.month + "/" + response.next_invoice_date.year + "</li>");
+            $("#erros").append("<li><strong>Status do pagamento:</strong> " + response.invoice.status.description + "</li>");
+            $("#erros").append("<li><strong>Status: </strong> " + response.status + "</li>")
+            console.log(response);
+
+
+            $("#formulario").fadeOut();
+
+          }
+        });
+
+      });
+
+    fill_form = function() {
+      $("#fullname").val("Teste Cartola");
+      $("#email").val("testemoip@mailinator.com");
+      $("#credit_card").val("4111111111111111");
+      $("#expiration_month").val("12");
+      $("#expiration_year").val("25");
+      $("#cpf").val("22222222222");
+      $("#ddd").val("11");
+      $("#phone").val("988886666");
+      $("#rua").val("Av Brigadeiro Faria Lima");
+      $("#numero").val("2027");
+      $("#complemento").val("8Andar");
+      $("#bairro").val("Jardim Paulistano");
+      $("#cep").val("01452000");
+      $("#cidade").val("São Paulo");
+      $("#estado").val("SP");
+      $("#birthdate_day").val("12");
+      $("#birthdate_month").val("12");
+      $("#birthdate_year").val("1988");
+    };
+  });
+</script>
+
+<style id="style-1-cropbar-clipper">
+  .en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+  }
+
+  .en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+  }
+</style></head>
+<body class="main">
+	
+  <div class="container">
+    <div><p></p></div>
+
+    <div class="alert alert-danger" role="alert" id="to-show" style="display: none;">
+      <p id="infoAdd"></p>
+      <ul id="erros"></ul>
+    </div>
+
+    <div class="row marketing"  id='formulario'>
+
+      <div class="col-lg-6">
+
+        <h4><b>Assinante</b></h4>
+
+        <form class="form-horizontal" role="form">
+          <fieldset>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-12">
+                <input type="text" placeholder="Nome completo" class="form-control" id="fullname">
+              </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-12">
+                <input type="text" placeholder="Email" class="form-control" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHklEQVQ4EaVTO26DQBD1ohQWaS2lg9JybZ+AK7hNwx2oIoVf4UPQ0Lj1FdKktevIpel8AKNUkDcWMxpgSaIEaTVv3sx7uztiTdu2s/98DywOw3Dued4Who/M2aIx5lZV1aEsy0+qiwHELyi+Ytl0PQ69SxAxkWIA4RMRTdNsKE59juMcuZd6xIAFeZ6fGCdJ8kY4y7KAuTRNGd7jyEBXsdOPE3a0QGPsniOnnYMO67LgSQN9T41F2QGrQRRFCwyzoIF2qyBuKKbcOgPXdVeY9rMWgNsjf9ccYesJhk3f5dYT1HX9gR0LLQR30TnjkUEcx2uIuS4RnI+aj6sJR0AM8AaumPaM/rRehyWhXqbFAA9kh3/8/NvHxAYGAsZ/il8IalkCLBfNVAAAAABJRU5ErkJggg==&quot;); background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; background-repeat: no-repeat;" id="email">
+              </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-12">
+                <input type="text" placeholder="CPF" class="form-control" id="cpf" maxlength="11">
+              </div>
+            </div>
+            <hr>
+
+            <p><b>Data de nascimento</b></p>   
+            <!-- Text input-->
+            <div class="form-group">
+
+              <div class="col-sm-4">
+
+                <input type="text" placeholder="DD" class="form-control" id="birthdate_day" maxlength="2">
+              </div>
+
+              <div class="col-sm-4">
+                <input type="text" placeholder="MM" class="form-control" id="birthdate_month" maxlength="2">
+              </div>            
+              <div class="col-sm-4">
+                <input type="text" placeholder="AAAA" class="form-control" id="birthdate_year" maxlength="4">
+              </div>
+
+            </div>
+            <hr>
+
+            <p><b>Endereço</b></p>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-8">
+                <input type="text" placeholder="Rua" class="form-control" id="rua">
+              </div>
+              <div class="col-sm-4">
+                <input type="text" placeholder="Número" class="form-control" id="numero">
+              </div>            
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-8">
+                <input type="text" placeholder="Bairro" class="form-control" id="bairro">
+              </div>
+              <div class="col-sm-4">
+                <input type="text" placeholder="Complemento" class="form-control" id="complemento">
+              </div>            
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-6">
+                <input type="text" placeholder="Cidade" class="form-control" id="cidade">
+              </div>
+              <div class="col-sm-6">
+                <select name="estado" class="form-control" id="estado"> 
+                  <option value="estado">Selecione o Estado</option> 
+                  <option value="AC">Acre</option> 
+                  <option value="AL">Alagoas</option> 
+                  <option value="AM">Amazonas</option> 
+                  <option value="AP">Amapá</option> 
+                  <option value="BA">Bahia</option> 
+                  <option value="CE">Ceará</option> 
+                  <option value="DF">Distrito Federal</option> 
+                  <option value="ES">Espírito Santo</option> 
+                  <option value="GO">Goiás</option> 
+                  <option value="MA">Maranhão</option> 
+                  <option value="MT">Mato Grosso</option> 
+                  <option value="MS">Mato Grosso do Sul</option> 
+                  <option value="MG">Minas Gerais</option> 
+                  <option value="PA">Pará</option> 
+                  <option value="PB">Paraíba</option> 
+                  <option value="PR">Paraná</option> 
+                  <option value="PE">Pernambuco</option> 
+                  <option value="PI">Piauí</option> 
+                  <option value="RJ">Rio de Janeiro</option> 
+                  <option value="RN">Rio Grande do Norte</option> 
+                  <option value="RO">Rondônia</option> 
+                  <option value="RS">Rio Grande do Sul</option> 
+                  <option value="RR">Roraima</option> 
+                  <option value="SC">Santa Catarina</option> 
+                  <option value="SE">Sergipe</option> 
+                  <option value="SP">São Paulo</option> 
+                  <option value="TO">Tocantins</option> 
+                </select>
+              </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+              <div class="col-sm-5">
+                <input type="text" placeholder="CEP" class="form-control" maxlength="8" id="cep">
+              </div>
+              <div class="col-sm-3">
+                <input type="text" placeholder="DDD" class="form-control" maxlength="2" id="ddd">
+              </div>
+              <div class="col-sm-4">
+                <input type="text" placeholder="Telefone" class="form-control" maxlength="9" id="phone">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-lg-6">
+
+            <p><b>Plano</b></p>   
+
+            <div class="btn-group btn-group-justified" data-toggle="buttons">
+              <div class="col-sm-6">
+                <img src="./lib/cartola.png" alt="CartolaFC" height="150" width="150">
+              </div>
+              <div class="col-sm-6">
+                <p><h4>R$ 10,00</h4> (por Mês)</p>
+              </div>
+            </div>
+
+            <hr>
+
+            <p><b>Checkout</b></p>   
+
+            <br>
+
+            <div class="panel panel-default">
+              <div class="panel-heading" style="background-color:#31708f">
+                <p><span class="badge pull-right">R$ 10,00/mês</span><span class="badge pull-left">Moiplejao</span></p></div>
+
+                <div class="panel-body">
+                  <div class="form-group">
+                    <label for="cardNumber">Cartão</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="credit_card" placeholder="XXXXXXXXXXXXXXXX" required="" autofocus="" style="cursor: auto; background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHklEQVQ4EaVTO26DQBD1ohQWaS2lg9JybZ+AK7hNwx2oIoVf4UPQ0Lj1FdKktevIpel8AKNUkDcWMxpgSaIEaTVv3sx7uztiTdu2s/98DywOw3Dued4Who/M2aIx5lZV1aEsy0+qiwHELyi+Ytl0PQ69SxAxkWIA4RMRTdNsKE59juMcuZd6xIAFeZ6fGCdJ8kY4y7KAuTRNGd7jyEBXsdOPE3a0QGPsniOnnYMO67LgSQN9T41F2QGrQRRFCwyzoIF2qyBuKKbcOgPXdVeY9rMWgNsjf9ccYesJhk3f5dYT1HX9gR0LLQR30TnjkUEcx2uIuS4RnI+aj6sJR0AM8AaumPaM/rRehyWhXqbFAA9kh3/8/NvHxAYGAsZ/il8IalkCLBfNVAAAAABJRU5ErkJggg==&quot;); background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; background-repeat: no-repeat;"  maxlength="16">
+                      <span class="input-group-addon"><span class="glyphicon glyphicon-credit-card"></span></span>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xs-7 col-md-7">
+                      <div class="form-group">
+                        <label for="expityMonth">Data de expiração</label>
+                        <br>
+
+                        <div class="col-xs-6 col-lg-6 pl-ziro">
+                          <input type="text" class="form-control" id="expiration_month" placeholder="MM" required="" maxlength="2">
+                        </div>
+                        <div class="col-xs-6 col-lg-6 pl-ziro">
+                          <input type="text" class="form-control" id="expiration_year" placeholder="YY" required="" maxlength="2"></div>
+                        </div>
+                      </div>
+<!--                        <div class="col-xs-5 col-md-5 pull-right">
+                            <div class="form-group">
+                                <label for="cvCode">CVV Code</label>
+                                <input type="password" class="form-control" id="cvCode" placeholder="XXX" required="" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACIUlEQVQ4EX2TOYhTURSG87IMihDsjGghBhFBmHFDHLWwSqcikk4RRKJgk0KL7C8bMpWpZtIqNkEUl1ZCgs0wOo0SxiLMDApWlgOPrH7/5b2QkYwX7jvn/uc//zl3edZ4PPbNGvF4fC4ajR5VrNvt/mo0Gr1ZPOtfgWw2e9Lv9+chX7cs64CS4Oxg3o9GI7tUKv0Q5o1dAiTfCgQCLwnOkfQOu+oSLyJ2A783HA7vIPLGxX0TgVwud4HKn0nc7Pf7N6vV6oZHkkX8FPG3uMfgXC0Wi2vCg/poUKGGcagQI3k7k8mcp5slcGswGDwpl8tfwGJg3xB6Dvey8vz6oH4C3iXcFYjbwiDeo1KafafkC3NjK7iL5ESFGQEUF7Sg+ifZdDp9GnMF/KGmfBdT2HCwZ7TwtrBPC7rQaav6Iv48rqZwg+F+p8hOMBj0IbxfMdMBrW5pAVGV/ztINByENkU0t5BIJEKRSOQ3Aj+Z57iFs1R5NK3EQS6HQqF1zmQdzpFWq3W42WwOTAf1er1PF2USFlC+qxMvFAr3HcexWX+QX6lUvsKpkTyPSEXJkw6MQ4S38Ljdbi8rmM/nY+CvgNcQqdH6U/xrYK9t244jZv6ByUOSiDdIfgBZ12U6dHEHu9TpdIr8F0OP692CtzaW/a6y3y0Wx5kbFHvGuXzkgf0xhKnPzA4UTyaTB8Ph8AvcHi3fnsrZ7Wore02YViqVOrRXXPhfqP8j6MYlawoAAAAASUVORK5CYII=&quot;); background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; background-repeat: no-repeat;">
+                            </div>
+                          </div> -->
+                        </div>
+                      </div>
+                    </fieldset>
+                  </form>
+
+                </div>
+
+                <a href="#" class="btn btn-info btn-lg btn-block" role="button" id="assinar"><span class="glyphicon glyphicon-credit-card"></span> Assinar </a>
+
+              </div>
+
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- /container -->
+
+  </body>
+  </html>
