@@ -117,14 +117,12 @@
 
 <script type="text/javascript" src="https://s3.amazonaws.com/assets-sandbox.moip.com.br/assinaturas/moip-assinaturas.min.js"></script>
 
-
-
 <script type="text/javascript">
   $(document).ready(function(){
 
     $("#assinar").click(function(){
-      console.log("Assinou...");
-
+    $("#assinar").addClass("disabled").html("<span id='span-assinar'></span> Assinando...");
+    $("#span-assinar").addClass("glyphicon").addClass("glyphicon-transfer").removeClass("glyphicon-credit-card");
 
       var build_customer = function() {
         var customer_params = {
@@ -167,9 +165,9 @@
         return new Address(address_params);
       };         
 
-      var moip = new MoipAssinaturas("PE8ZECRX4ZPV3OF7HRG136HEPDOOTNUB");
+      var moip = new MoipAssinaturas("02020202020202020202020202020202");
       var customer = build_customer();
-      var plan_code = "plan001";
+      var plan_code = "torcedor2016";
 
       moip.subscribe(
         new Subscription()
@@ -184,24 +182,20 @@
               var erro = response.errors[i].description;
               $("#erros").append("<li>" + erro + "</li>");
               $(".alert").fadeIn();
-              console.log(erro);
+
+              $("#assinar").removeClass("disabled").html("<span id='span-assinar'></span> Tentar novamente");
+              $("#span-assinar").addClass("glyphicon").addClass("glyphicon-credit-card").removeClass("glyphicon-transfer");
 
             }
           } else {
+            $("#erros").empty();
             $("#to-show").removeClass("alert-danger").addClass("alert-success").fadeIn();
-
             $("#infoAdd").append("<b>Assinatura criada com sucesso</b>, código de assinatura:");
-
             $("#infoAdd").append("<h1><strong> " + response.code + "</strong></h1>")
-
             $("#infoAdd").append('<img src="./lib/check-pagamento-aprovado.png" height="150" width="150" style="position: absolute; margin-left: 35%; margin-top: -7%;">')
-
             $("#erros").append("<li><strong>Próxima Cobrança:</strong> " + response.next_invoice_date.day + "/" + response.next_invoice_date.month + "/" + response.next_invoice_date.year + "</li>");
             $("#erros").append("<li><strong>Status do pagamento:</strong> " + response.invoice.status.description + "</li>");
             $("#erros").append("<li><strong>Status: </strong> " + response.status + "</li>")
-            console.log(response);
-
-
             $("#formulario").fadeOut();
 
           }
@@ -211,7 +205,7 @@
 
     fill_form = function() {
       $("#fullname").val("Teste Cartola");
-      $("#email").val("testemoip@mailinator.com");
+      $("#email").val("checkout-exemplo-moipassinaturas@mailinator.com");
       $("#credit_card").val("4111111111111111");
       $("#expiration_month").val("12");
       $("#expiration_year").val("25");
@@ -439,7 +433,7 @@
 
                 </div>
 
-                <a href="#" class="btn btn-info btn-lg btn-block" role="button" id="assinar"><span class="glyphicon glyphicon-credit-card"></span> Assinar </a>
+                <a href="#" class="btn btn-info btn-lg btn-block" role="button" id="assinar"><span class="glyphicon glyphicon-credit-card" id="span-assinar"></span> Assinar</a>
 
               </div>
 
