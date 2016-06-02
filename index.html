@@ -191,6 +191,7 @@
 
             }
           } else {
+            $("#erros").empty();
             $("#to-show").removeClass("alert-danger").addClass("alert-success").fadeIn();
             $("#infoAdd").append("<b>Assinatura criada com sucesso</b>, código de assinatura:");
             $("#infoAdd").append("<h1><strong> " + response.code + "</strong></h1>")
