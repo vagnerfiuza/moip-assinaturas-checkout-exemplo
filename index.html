@@ -122,7 +122,6 @@
   $(document).ready(function(){
 
     $("#assinar").click(function(){
-      console.log("Assinou...");
     $("#assinar").addClass("disabled").html("<span id='span-assinar'></span> Assinando...");
     $("#span-assinar").addClass("glyphicon").addClass("glyphicon-transfer").removeClass("glyphicon-credit-card");
 
@@ -184,7 +183,6 @@
               var erro = response.errors[i].description;
               $("#erros").append("<li>" + erro + "</li>");
               $(".alert").fadeIn();
-              console.log(erro);
 
               $("#assinar").removeClass("disabled").html("<span id='span-assinar'></span> Tentar novamente");
               $("#span-assinar").addClass("glyphicon").addClass("glyphicon-credit-card").removeClass("glyphicon-transfer");
@@ -199,9 +197,6 @@
             $("#erros").append("<li><strong>Próxima Cobrança:</strong> " + response.next_invoice_date.day + "/" + response.next_invoice_date.month + "/" + response.next_invoice_date.year + "</li>");
             $("#erros").append("<li><strong>Status do pagamento:</strong> " + response.invoice.status.description + "</li>");
             $("#erros").append("<li><strong>Status: </strong> " + response.status + "</li>")
-            console.log(response);
-
-
             $("#formulario").fadeOut();
 
           }
